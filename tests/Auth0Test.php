@@ -76,8 +76,6 @@ class Auth0Test extends \PHPUnit_Framework_TestCase
 
         $accessTokenDummy = $this->getAccessToken();
         $userDetails = $provider->getResourceOwner($accessTokenDummy);
-        $this->setExpectedException('RuntimeException');
-
     }
 
 
