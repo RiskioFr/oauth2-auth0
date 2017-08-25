@@ -4,14 +4,22 @@ namespace Riskio\OAuth2\Client\Provider;
 use League\OAuth2\Client\Entity\User;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
+use Psr\Http\Message\ResponseInterface;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class Auth0 extends AbstractProvider
 {
-    public $responseType = 'json';
 
-    public $authorizationHeader = 'Bearer';
 
-    public $account;
+    protected $account;
+
+    protected $authorizationHeader;
+
+    public function __construct(array $options = [], array $collaborators = [])
+    {
+        parent::__construct($options, $collaborators);
+        $this->account = isset($options['account'])? $options['account'] : null;
+    }
 
     protected function domain()
     {
@@ -22,40 +30,51 @@ class Auth0 extends AbstractProvider
         return 'https://' . $this->account . '.auth0.com';
     }
 
-    public function urlAuthorize()
+    public function getBaseAuthorizationUrl()
     {
         return $this->domain() . '/authorize';
     }
 
-    public function urlAccessToken()
+    public function getBaseAccessTokenUrl(array $params = [])
     {
         return $this->domain() . '/oauth/token';
     }
 
-    public function urlUserDetails(AccessToken $token)
+    public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
         return $this->domain() . '/userinfo';
     }
 
-    public function userDetails($response, AccessToken $token)
+    public function getDefaultScopes()
     {
-        $user = new User();
-
-        $imageUrl = isset($response->picture) ? $response->picture : null;
-
-        $user->exchangeArray([
-            'uid'      => $this->userUid($response, $token),
-            'nickname' => $response->nickname,
-            'name'     => $this->userScreenName($response, $token),
-            'email'    => $this->userEmail($response, $token),
-            'imageUrl' => $imageUrl,
-        ]);
-
-        return $user;
+        return ['openid','email'];
     }
+
+    public function checkResponse(ResponseInterface $response, $data)
+    {
+        if (!empty($data['error'])) {
+            $message = $data['error'].': '.$data['error_description'];
+            throw new IdentityProviderException($message, null, $data);
+        }
+    }
+
+    public function createResourceOwner(array $response, AccessToken $token)
+    {
+        return new Auth0User($response);
+    }
+
 
     public function userUid($response, AccessToken $token)
     {
         return $response->user_id;
     }
+
+    protected function getAuthorizationHeaders($token = null)
+    {
+        $header = !is_null($token)?
+            ['Authorization'=>$token->getValues()['token_type'].' '.$token->getToken()]: null;
+        return $header;
+    }
+
+
 }
