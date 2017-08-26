@@ -75,9 +75,8 @@ class Auth0Test extends \PHPUnit_Framework_TestCase
         $provider = new OauthProvider($this->config);
 
         $accessTokenDummy = $this->getAccessToken();
-        $userDetails = $provider->getResourceOwner($accessTokenDummy);
+        $provider->getResourceOwner($accessTokenDummy);
     }
-
 
     private function getAccessToken()
     {
@@ -85,5 +84,4 @@ class Auth0Test extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
     }
-
 }

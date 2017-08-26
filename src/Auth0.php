@@ -1,25 +1,17 @@
 <?php
 namespace Riskio\OAuth2\Client\Provider;
 
-use League\OAuth2\Client\Entity\User;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
+use Riskio\OAuth2\Client\Provider\Exception\Auth0IdentityProviderException;
 use Psr\Http\Message\ResponseInterface;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class Auth0 extends AbstractProvider
 {
-
+    use BearerAuthorizationTrait;
 
     protected $account;
-
-    protected $authorizationHeader;
-
-    public function __construct(array $options = [], array $collaborators = [])
-    {
-        parent::__construct($options, $collaborators);
-        $this->account = isset($options['account'])? $options['account'] : null;
-    }
 
     protected function domain()
     {
@@ -47,34 +39,21 @@ class Auth0 extends AbstractProvider
 
     public function getDefaultScopes()
     {
-        return ['openid','email'];
+        return ['openid', 'email'];
     }
 
-    public function checkResponse(ResponseInterface $response, $data)
+    protected function checkResponse(ResponseInterface $response, $data)
     {
-        if (!empty($data['error'])) {
-            $message = $data['error'].': '.$data['error_description'];
-            throw new IdentityProviderException($message, null, $data);
+        if ($response->getStatusCode() >= 400) {
+            return Auth0IdentityProviderException::fromResponse(
+                $response,
+                $data['error'] ?: $response->getReasonPhrase()
+            );
         }
     }
 
-    public function createResourceOwner(array $response, AccessToken $token)
+    protected function createResourceOwner(array $response, AccessToken $token)
     {
-        return new Auth0User($response);
+        return new Auth0ResourceOwner($response);
     }
-
-
-    public function userUid($response, AccessToken $token)
-    {
-        return $response->user_id;
-    }
-
-    protected function getAuthorizationHeaders($token = null)
-    {
-        $header = !is_null($token)?
-            ['Authorization'=>$token->getValues()['token_type'].' '.$token->getToken()]: null;
-        return $header;
-    }
-
-
 }
