@@ -1,8 +1,10 @@
 <?php
 namespace Riskio\OAuth2\Client\Test\Provider;
+
+use PHPUnit\Framework\TestCase;
 use Riskio\OAuth2\Client\Provider\Auth0ResourceOwner;
 
-class Auth0ResourceOwnerTest extends \PHPUnit_Framework_TestCase
+class Auth0ResourceOwnerTest extends TestCase
 {
     public $response = [
         'email' => 'testuser@gmail.com',

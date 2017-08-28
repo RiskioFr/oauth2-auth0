@@ -1,9 +1,10 @@
 <?php
 namespace Riskio\OAuth2\Client\Test\Provider;
 
+use PHPUnit\Framework\TestCase;
 use Riskio\OAuth2\Client\Provider\Auth0 as OauthProvider;
 
-class Auth0Test extends \PHPUnit_Framework_TestCase
+class Auth0Test extends TestCase
 {
     protected $config = [
         'account'      => 'mock_account',
@@ -28,7 +29,7 @@ class Auth0Test extends \PHPUnit_Framework_TestCase
 
         $provider = new OauthProvider($this->config);
 
-        $this->setExpectedException('RuntimeException');
+        $this->expectException('RuntimeException');
         $provider->getAuthorizationUrl();
     }
 
@@ -48,7 +49,7 @@ class Auth0Test extends \PHPUnit_Framework_TestCase
 
         $provider = new OauthProvider($this->config);
 
-        $this->setExpectedException('RuntimeException');
+        $this->expectException('RuntimeException');
         $provider->getBaseAccessTokenUrl();
     }
 
