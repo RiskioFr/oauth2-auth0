@@ -22,6 +22,7 @@ Usage is the same as The League's OAuth client, using `Riskio\OAuth2\Client\Prov
 
 ```php
 $provider = new Riskio\OAuth2\Client\Provider\Auth0([
+    'account'      => '{account}',
     'clientId'     => '{auth0-client-id}',
     'clientSecret' => '{auth0-client-secret}',
     'redirectUri'  => 'https://example.com/callback-url'
