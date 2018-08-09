@@ -20,8 +20,25 @@ Usage is the same as The League's OAuth client, using `Riskio\OAuth2\Client\Prov
 
 ### Authorization Code Flow
 
+You have to provide some parameters to the provider:
+
+- region (optional):
+   - description: Auth0 region
+   - values:
+      - Riskio\OAuth2\Client\Provider\Auth0::REGION_US (default value)
+      - Riskio\OAuth2\Client\Provider\Auth0::REGION_EU
+      - Riskio\OAuth2\Client\Provider\Auth0::REGION_AU
+- account:
+   - description: Auth0 account name
+- clientId
+   - description: The client ID assigned to you by the provider
+- clientSecret
+   - description: The client password assigned to you by the provider
+- redirectUri
+
 ```php
 $provider = new Riskio\OAuth2\Client\Provider\Auth0([
+    'region'       => '{region}',
     'account'      => '{account}',
     'clientId'     => '{auth0-client-id}',
     'clientSecret' => '{auth0-client-secret}',

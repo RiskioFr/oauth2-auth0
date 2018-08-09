@@ -1,26 +1,33 @@
 <?php
 namespace Riskio\OAuth2\Client\Test\Provider;
 
+use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\TestCase;
 use Riskio\OAuth2\Client\Provider\Auth0 as OauthProvider;
+use RuntimeException;
 
 class Auth0Test extends TestCase
 {
+    const DEFAULT_ACCOUNT = 'mock_account';
+
     protected $config = [
-        'account'      => 'mock_account',
+        'account'      => self::DEFAULT_ACCOUNT,
         'clientId'     => 'mock_client_id',
         'clientSecret' => 'mock_secret',
         'redirectUri'  => 'none',
     ];
 
-    public function testGetAuthorizationUrl()
+    /**
+     * @dataProvider regionDataProvider
+     */
+    public function testGetAuthorizationUrl($region, $expectedHost)
     {
-        $provider = new OauthProvider($this->config);
+        $provider = new OauthProvider(array_merge($this->config, ['region' => $region]));
         $url = $provider->getAuthorizationUrl();
-        $uri = parse_url($url);
+        $parsedUrl = parse_url($url);
 
-        $this->assertEquals($this->config['account'] . '.auth0.com', $uri['host']);
-        $this->assertEquals('/authorize', $uri['path']);
+        $this->assertEquals($expectedHost, $parsedUrl['host']);
+        $this->assertEquals('/authorize', $parsedUrl['path']);
     }
 
     public function testGetAuthorizationUrlWhenAccountIsNotSpecifiedShouldThrowException()
@@ -29,18 +36,21 @@ class Auth0Test extends TestCase
 
         $provider = new OauthProvider($this->config);
 
-        $this->expectException('RuntimeException');
+        $this->expectException(RuntimeException::class);
         $provider->getAuthorizationUrl();
     }
 
-    public function testGetUrlAccessToken()
+    /**
+     * @dataProvider regionDataProvider
+     */
+    public function testGetUrlAccessToken($region, $expectedHost)
     {
-        $provider = new OauthProvider($this->config);
+        $provider = new OauthProvider(array_merge($this->config, ['region' => $region]));
         $url = $provider->getBaseAccessTokenUrl();
-        $uri = parse_url($url);
+        $parsedUrl = parse_url($url);
 
-        $this->assertEquals($this->config['account'] . '.auth0.com', $uri['host']);
-        $this->assertEquals('/oauth/token', $uri['path']);
+        $this->assertEquals($expectedHost, $parsedUrl['host']);
+        $this->assertEquals('/oauth/token', $parsedUrl['path']);
     }
 
     public function testGetAccessTokenUrlWhenAccountIsNotSpecifiedShouldThrowException()
@@ -49,25 +59,28 @@ class Auth0Test extends TestCase
 
         $provider = new OauthProvider($this->config);
 
-        $this->expectException('RuntimeException');
+        $this->expectException(RuntimeException::class);
         $provider->getBaseAccessTokenUrl();
     }
 
-    public function testGetUrlUserDetails()
+    /**
+     * @dataProvider regionDataProvider
+     */
+    public function testGetUrlUserDetails($region, $expectedHost)
     {
-        $provider = new OauthProvider($this->config);
+        $provider = new OauthProvider(array_merge($this->config, ['region' => $region]));
 
         $accessTokenDummy = $this->getAccessToken();
 
         $url = $provider->getResourceOwnerDetailsUrl($accessTokenDummy);
-        $uri = parse_url($url);
+        $parsedUrl = parse_url($url);
 
-        $this->assertEquals($this->config['account'] . '.auth0.com', $uri['host']);
-        $this->assertEquals('/userinfo', $uri['path']);
+        $this->assertEquals($expectedHost, $parsedUrl['host']);
+        $this->assertEquals('/userinfo', $parsedUrl['path']);
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException \Riskio\OAuth2\Client\Provider\Exception\AccountNotProvidedException
      */
     public function testGetUserDetailsUrlWhenAccountIsNotSpecifiedShouldThrowException()
     {
@@ -79,9 +92,43 @@ class Auth0Test extends TestCase
         $provider->getResourceOwner($accessTokenDummy);
     }
 
+    /**
+     * @expectedException \Riskio\OAuth2\Client\Provider\Exception\InvalidRegionException
+     */
+    public function testGetUserDetailsUrlWhenInvalidRegionIsProvidedShouldThrowException()
+    {
+        $this->config['region'] = 'invalid_region';
+
+        $provider = new OauthProvider($this->config);
+
+        $accessTokenDummy = $this->getAccessToken();
+        $provider->getResourceOwner($accessTokenDummy);
+    }
+
+    public function regionDataProvider()
+    {
+        return [
+            [
+                OauthProvider::REGION_US,
+                sprintf('%s.auth0.com', self::DEFAULT_ACCOUNT),
+            ],
+            [
+                OauthProvider::REGION_EU,
+                sprintf('%s.%s.auth0.com', self::DEFAULT_ACCOUNT, OauthProvider::REGION_EU),
+            ],
+            [
+                OauthProvider::REGION_AU,
+                sprintf('%s.%s.auth0.com', self::DEFAULT_ACCOUNT, OauthProvider::REGION_AU),
+            ],
+        ];
+    }
+
+    /**
+     * @return \PHPUnit\Framework\MockObject\MockObject|AccessToken
+     */
     private function getAccessToken()
     {
-        return $this->getMockBuilder('League\OAuth2\Client\Token\AccessToken')
+        return $this->getMockBuilder(AccessToken::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
