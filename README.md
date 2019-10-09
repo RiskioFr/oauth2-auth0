@@ -37,6 +37,9 @@ You have to provide some parameters to the provider:
 - redirectUri
 
 ```php
+
+session_start();
+
 $provider = new Riskio\OAuth2\Client\Provider\Auth0([
     'region'       => '{region}',
     'account'      => '{account}',
@@ -49,7 +52,7 @@ if (!isset($_GET['code'])) {
 
     // If we don't have an authorization code then get one
     $authUrl = $provider->getAuthorizationUrl();
-    $_SESSION['oauth2state'] = $provider->state;
+    $_SESSION['oauth2state'] = $provider->getState();
     header('Location: ' . $authUrl);
     exit;
 
