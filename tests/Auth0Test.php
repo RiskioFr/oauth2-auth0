@@ -132,4 +132,25 @@ class Auth0Test extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
     }
+
+    /**
+     * @dataProvider scopeDataProvider
+     */
+    public function testGetAuthorizationUrlWithScopes($scopes, $expectedScopeParameter)
+    {
+        $provider = new OauthProvider(array_merge($this->config, ['scope' => $scopes]));
+
+        $url = $provider->getAuthorizationUrl();
+        $queryString = parse_url($url, PHP_URL_QUERY);
+
+        $this->assertContains($expectedScopeParameter, $queryString);
+    }
+
+    public function scopeDataProvider()
+    {
+        return [
+            [['openid'], 'scope=openid'],
+            [['openid', 'email'], 'scope=openid%20email'],
+        ];
+    }
 }

@@ -75,4 +75,9 @@ class Auth0 extends AbstractProvider
     {
         return new Auth0ResourceOwner($response);
     }
+
+    protected function getScopeSeparator()
+    {
+        return ' ';
+    }
 }
