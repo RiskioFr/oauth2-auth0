@@ -23,8 +23,14 @@ class Auth0 extends AbstractProvider
 
     protected $account;
 
+    protected $customDomain;
+
     protected function domain()
     {
+        if ($this->customDomain !== null) {
+            return $this->customDomain;
+        }
+
         if (empty($this->account)) {
             throw new AccountNotProvidedException();
         }
