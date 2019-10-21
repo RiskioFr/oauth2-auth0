@@ -24,7 +24,7 @@ You have to provide some parameters to the provider:
 
 - customDomain (optional):
    - description: Custom domain used for the Auth0 login - https://auth0.com/docs/custom-domains
-     (If this is set, the region and account parameters will be ignored.)
+     (I.e.: login.custom-domain.tld - It will be prefixed with https:// automatically. If this is set, the region and account parameters will be ignored.)
 - region (optional):
    - description: Auth0 region
    - values:

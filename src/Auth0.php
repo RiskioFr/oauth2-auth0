@@ -44,22 +44,27 @@ class Auth0 extends AbstractProvider
             $domain = $this->region . '.' . $domain;
         }
 
-        return 'https://' . $this->account . '.' . $domain;
+        return $this->account . '.' . $domain;
+    }
+
+    protected function baseUrl()
+    {
+        return 'https://' . $this->domain();
     }
 
     public function getBaseAuthorizationUrl()
     {
-        return $this->domain() . '/authorize';
+        return $this->baseUrl() . '/authorize';
     }
 
     public function getBaseAccessTokenUrl(array $params = [])
     {
-        return $this->domain() . '/oauth/token';
+        return $this->baseUrl() . '/oauth/token';
     }
 
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return $this->domain() . '/userinfo';
+        return $this->baseUrl() . '/userinfo';
     }
 
     public function getDefaultScopes()

@@ -156,11 +156,12 @@ class Auth0Test extends TestCase
 
     public function testGetAuthorizationUrlWithCustomDomain()
     {
-        $customDomain = 'https://login.custom-domain.tld';
+        $customDomain = 'login.custom-domain.tld';
         $provider = new OauthProvider(array_merge($this->config, ['customDomain' => $customDomain]));
         $url = $provider->getAuthorizationUrl();
+        $expectedBaseUrl = 'https://' . $customDomain;
 
-        $this->assertTrue(0 === strpos($url, $customDomain));
+        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
     }
 
     /**
@@ -170,20 +171,21 @@ class Auth0Test extends TestCase
      */
     public function testCustomDomain()
     {
-        $customDomain = 'https://login.custom-domain.tld';
+        $customDomain = 'login.custom-domain.tld';
         $this->config['customDomain'] = $customDomain;
         unset($this->config['account']);
+        $expectedBaseUrl = 'https://' . $customDomain;
 
         $provider = new OauthProvider($this->config);
         $accessTokenDummy = $this->getAccessToken();
 
         $url = $provider->getBaseAuthorizationUrl();
-        $this->assertTrue(0 === strpos($url, $customDomain));
+        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
 
         $url = $provider->getBaseAccessTokenUrl();
-        $this->assertTrue(0 === strpos($url, $customDomain));
+        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
 
         $url = $provider->getResourceOwnerDetailsUrl($accessTokenDummy);
-        $this->assertTrue(0 === strpos($url, $customDomain));
+        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
     }
 }
