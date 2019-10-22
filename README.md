@@ -22,13 +22,16 @@ Usage is the same as The League's OAuth client, using `Riskio\OAuth2\Client\Prov
 
 You have to provide some parameters to the provider:
 
+- customDomain (optional):
+   - description: Custom domain used for the Auth0 login - https://auth0.com/docs/custom-domains
+     (I.e.: login.custom-domain.tld - It will be prefixed with https:// automatically. If this is set, the region and account parameters will be ignored.)
 - region (optional):
    - description: Auth0 region
    - values:
       - Riskio\OAuth2\Client\Provider\Auth0::REGION_US (default value)
       - Riskio\OAuth2\Client\Provider\Auth0::REGION_EU
       - Riskio\OAuth2\Client\Provider\Auth0::REGION_AU
-- account:
+- account (required if customDomain is not set):
    - description: Auth0 account name
 - clientId
    - description: The client ID assigned to you by the provider

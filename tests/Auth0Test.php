@@ -153,4 +153,39 @@ class Auth0Test extends TestCase
             [['openid', 'email'], 'scope=openid%20email'],
         ];
     }
+
+    public function testGetAuthorizationUrlWithCustomDomain()
+    {
+        $customDomain = 'login.custom-domain.tld';
+        $provider = new OauthProvider(array_merge($this->config, ['customDomain' => $customDomain]));
+        $url = $provider->getAuthorizationUrl();
+        $expectedBaseUrl = 'https://' . $customDomain;
+
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
+    }
+
+    /**
+     * Test that URL getters work as expected with custom domain set, and account not set.
+     * They should not throw AccountNotProvidedException (or any exception),
+     * and have to return an url starting with the custom domain.
+     */
+    public function testCustomDomain()
+    {
+        $customDomain = 'login.custom-domain.tld';
+        $this->config['customDomain'] = $customDomain;
+        unset($this->config['account']);
+        $expectedBaseUrl = 'https://' . $customDomain;
+
+        $provider = new OauthProvider($this->config);
+        $accessTokenDummy = $this->getAccessToken();
+
+        $url = $provider->getBaseAuthorizationUrl();
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
+
+        $url = $provider->getBaseAccessTokenUrl();
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
+
+        $url = $provider->getResourceOwnerDetailsUrl($accessTokenDummy);
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
+    }
 }
