@@ -161,7 +161,7 @@ class Auth0Test extends TestCase
         $url = $provider->getAuthorizationUrl();
         $expectedBaseUrl = 'https://' . $customDomain;
 
-        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
     }
 
     /**
@@ -180,12 +180,12 @@ class Auth0Test extends TestCase
         $accessTokenDummy = $this->getAccessToken();
 
         $url = $provider->getBaseAuthorizationUrl();
-        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
 
         $url = $provider->getBaseAccessTokenUrl();
-        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
 
         $url = $provider->getResourceOwnerDetailsUrl($accessTokenDummy);
-        $this->assertTrue(0 === strpos($url, $expectedBaseUrl));
+        $this->assertStringStartsWith($expectedBaseUrl, $url);
     }
 }
