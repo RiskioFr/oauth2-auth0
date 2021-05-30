@@ -16,8 +16,9 @@ class Auth0 extends AbstractProvider
     const REGION_US = 'us';
     const REGION_EU = 'eu';
     const REGION_AU = 'au';
+    const REGION_JP = 'jp';
 
-    protected $availableRegions = [self::REGION_US, self::REGION_EU, self::REGION_AU];
+    protected $availableRegions = [self::REGION_US, self::REGION_EU, self::REGION_AU, self::REGION_JP];
 
     protected $region = self::REGION_US;
 
