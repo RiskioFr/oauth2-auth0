@@ -31,6 +31,7 @@ You have to provide some parameters to the provider:
       - Riskio\OAuth2\Client\Provider\Auth0::REGION_US (default value)
       - Riskio\OAuth2\Client\Provider\Auth0::REGION_EU
       - Riskio\OAuth2\Client\Provider\Auth0::REGION_AU
+      - Riskio\OAuth2\Client\Provider\Auth0::REGION_JP
 - account (required if customDomain is not set):
    - description: Auth0 account name
 - clientId
