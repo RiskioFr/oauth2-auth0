@@ -4,6 +4,8 @@ namespace Riskio\OAuth2\Client\Test\Provider;
 use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\TestCase;
 use Riskio\OAuth2\Client\Provider\Auth0 as OauthProvider;
+use Riskio\OAuth2\Client\Provider\Exception\AccountNotProvidedException;
+use Riskio\OAuth2\Client\Provider\Exception\InvalidRegionException;
 use RuntimeException;
 
 class Auth0Test extends TestCase
@@ -79,9 +81,6 @@ class Auth0Test extends TestCase
         $this->assertEquals('/userinfo', $parsedUrl['path']);
     }
 
-    /**
-     * @expectedException \Riskio\OAuth2\Client\Provider\Exception\AccountNotProvidedException
-     */
     public function testGetUserDetailsUrlWhenAccountIsNotSpecifiedShouldThrowException()
     {
         unset($this->config['account']);
@@ -89,12 +88,12 @@ class Auth0Test extends TestCase
         $provider = new OauthProvider($this->config);
 
         $accessTokenDummy = $this->getAccessToken();
+
+        $this->expectException(AccountNotProvidedException::class);
+
         $provider->getResourceOwner($accessTokenDummy);
     }
 
-    /**
-     * @expectedException \Riskio\OAuth2\Client\Provider\Exception\InvalidRegionException
-     */
     public function testGetUserDetailsUrlWhenInvalidRegionIsProvidedShouldThrowException()
     {
         $this->config['region'] = 'invalid_region';
@@ -102,6 +101,9 @@ class Auth0Test extends TestCase
         $provider = new OauthProvider($this->config);
 
         $accessTokenDummy = $this->getAccessToken();
+
+        $this->expectException(InvalidRegionException::class);
+
         $provider->getResourceOwner($accessTokenDummy);
     }
 
@@ -138,19 +140,22 @@ class Auth0Test extends TestCase
      */
     public function testGetAuthorizationUrlWithScopes($scopes, $expectedScopeParameter)
     {
-        $provider = new OauthProvider(array_merge($this->config, ['scope' => $scopes]));
+        $provider = new OauthProvider($this->config);
 
-        $url = $provider->getAuthorizationUrl();
+        $url = $provider->getAuthorizationUrl(['scope' => $scopes]);
         $queryString = parse_url($url, PHP_URL_QUERY);
 
-        $this->assertContains($expectedScopeParameter, $queryString);
+        parse_str($queryString, $queryParameters);
+
+        $this->assertArrayHasKey('scope', $queryParameters);
+        $this->assertSame($expectedScopeParameter, $queryParameters['scope']);
     }
 
     public function scopeDataProvider()
     {
         return [
-            [['openid'], 'scope=openid'],
-            [['openid', 'email'], 'scope=openid%20email'],
+            [['openid'], 'openid'],
+            [['openid', 'email'], 'openid email'],
         ];
     }
 
