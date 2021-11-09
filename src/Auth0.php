@@ -76,7 +76,7 @@ class Auth0 extends AbstractProvider
     protected function checkResponse(ResponseInterface $response, $data)
     {
         if ($response->getStatusCode() >= 400) {
-            return Auth0IdentityProviderException::fromResponse(
+            throw Auth0IdentityProviderException::fromResponse(
                 $response,
                 $data['error'] ?: $response->getReasonPhrase()
             );
