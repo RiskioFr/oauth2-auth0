@@ -2,6 +2,7 @@
 namespace Riskio\OAuth2\Client\Provider;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
@@ -53,27 +54,30 @@ class Auth0 extends AbstractProvider
         return 'https://' . $this->domain();
     }
 
-    public function getBaseAuthorizationUrl()
+    public function getBaseAuthorizationUrl(): string
     {
         return $this->baseUrl() . '/authorize';
     }
 
-    public function getBaseAccessTokenUrl(array $params = [])
+    public function getBaseAccessTokenUrl(array $params = []): string
     {
         return $this->baseUrl() . '/oauth/token';
     }
 
-    public function getResourceOwnerDetailsUrl(AccessToken $token)
+    public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
         return $this->baseUrl() . '/userinfo';
     }
 
-    public function getDefaultScopes()
+    /**
+     * @return array<int,string>
+     */
+    public function getDefaultScopes(): array
     {
         return ['openid', 'email'];
     }
 
-    protected function checkResponse(ResponseInterface $response, $data)
+    protected function checkResponse(ResponseInterface $response, $data): void
     {
         if ($response->getStatusCode() >= 400) {
             throw Auth0IdentityProviderException::fromResponse(
@@ -83,12 +87,12 @@ class Auth0 extends AbstractProvider
         }
     }
 
-    protected function createResourceOwner(array $response, AccessToken $token)
+    protected function createResourceOwner(array $response, AccessToken $token): ResourceOwnerInterface
     {
         return new Auth0ResourceOwner($response);
     }
 
-    protected function getScopeSeparator()
+    protected function getScopeSeparator(): string
     {
         return ' ';
     }
